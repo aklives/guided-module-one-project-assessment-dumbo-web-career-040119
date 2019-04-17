@@ -116,6 +116,8 @@ class CommandLineInterface
 
   def edit_post
     puts `clear`
+    puts "Review Titles:"
+    Post.all.map {|p| puts p.title}
     puts "Please enter the title of the Review:"
     review_title = gets.chomp
     post = Post.find_by(title: review_title)
@@ -125,7 +127,7 @@ class CommandLineInterface
     puts "Congratulations, you have edited your post!"
     input = nil
     while input == nil
-      puts "Press any key to return to main menu."
+      puts "Press any key and enter to return to the main menu."
       input = gets
     end
     display_menu
