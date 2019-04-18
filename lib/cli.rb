@@ -2,15 +2,20 @@ class CommandLineInterface
 
   def run
     welcome
-    display_menu
   end
 
   def welcome
     puts `clear`
     puts "Welcome to Band Ideas! Here we publish short reviews of our favorite, and least favorite music groups"
     puts "You may view our collection of reviews, bands, and authors, or become an author yourself and write your own review."
-    puts "We recommend review lengths of one paragraph. Please enter all text surrounded by quotation marks. Numbers are fine by themselves."
+    puts "We recommend review lengths of one paragraph."
     puts "Hope you enjoy!"
+    input = nil
+    while input == nil
+      puts "Press enter for main menu."
+      input = gets
+    end
+    display_menu
   end
 
   def display_menu
@@ -36,10 +41,13 @@ class CommandLineInterface
       edit_post
     elsif input == '6'
       delete_post
-    elsif input == '7' || input == "exit"
+    elsif input == '7'
+      puts "Thanks for checking us out! Keep listening and writing!"
+    elsif input == 'exit'
       puts "Thanks for checking us out! Keep listening and writing!"
     else
       puts "#{input} was invalid. Please try again."
+      sleep 3
       display_menu
     end
 
@@ -49,13 +57,14 @@ class CommandLineInterface
     puts `clear`
     counter = 1
     Post.all.each do |post|
-      puts "#{counter}. #{post.author.name}: '#{post.title}.'"
+      puts "#{counter}. #{post.author.name}: '#{post.band.name}.'"
+      puts "#{post.title}"
       puts "#{post.post}"
       counter += 1
     end
     input = nil
     while input == nil
-      puts "Press any key to return to main menu."
+      puts "Press enter to return to main menu."
       input = gets
     end
     display_menu
@@ -64,13 +73,14 @@ class CommandLineInterface
   def list_authors
     puts `clear`
     counter = 1
-    Author.all.each do |author|
-      puts "#{counter}. #{author.name}."
+    authors = Author.select(:name).map(&:name).uniq
+    authors.each do |author|
+      puts "#{counter}. #{author}."
       counter += 1
     end
     input = nil
     while input == nil
-      puts "Press any key to return to main menu."
+      puts "Press enter to return to main menu."
       input = gets
     end
     display_menu
@@ -85,7 +95,7 @@ class CommandLineInterface
     end
     input = nil
     while input == nil
-      puts "Press any key to return to main menu."
+      puts "Press enter to return to main menu."
       input = gets
     end
     display_menu
@@ -96,10 +106,35 @@ class CommandLineInterface
     puts "Congratulations on joining the team!"
     puts "Please enter your full name:"
     author_name = gets.chomp
-    author = Author.create(name: author_name)
+
+    repeat = false
+    Author.select(:name).map(&:name).each do |author|
+      if author_name == author
+        repeat = true
+      end
+    end
+
+    if repeat == true
+      author = Author.find_by(name: author_name)
+    else
+      author = Author.create(name: author_name)
+    end
     puts "Please enter the name of the band you want to review:"
     band_name = gets.chomp
-    band = Band.create(name: band_name)
+
+    repeat = false
+    Band.select(:name).map(&:name).each do |band|
+      if band_name == band
+        repeat = true
+      end
+    end
+
+    if repeat == true
+      band = Band.find_by(name: band_name)
+    else
+      band = Band.create(name: band_name)
+    end
+
     puts "Please enter the title of the Review:"
     post_title = gets.chomp
     puts "Please enter your Review text:"
@@ -108,7 +143,7 @@ class CommandLineInterface
     puts "Congratulations! You have been published."
     input = nil
     while input == nil
-      puts "Press any key to return to main menu."
+      puts "Press enter to return to main menu."
       input = gets
     end
     display_menu
@@ -118,16 +153,37 @@ class CommandLineInterface
     puts `clear`
     puts "Review Titles:"
     Post.all.map {|p| puts p.title}
-    puts "Please enter the title of the Review:"
-    review_title = gets.chomp
-    post = Post.find_by(title: review_title)
+    input = false
+    while input == false
+
+      puts "Please enter the title of the Review:"
+
+        review_title_input = gets.chomp
+
+        repeat = false
+        Post.select(:title).map(&:title).each do |title|
+          if review_title_input == title
+            repeat = true
+          end
+        end
+
+        if repeat == true
+          post = Post.find_by(title: review_title_input)
+          input = true
+        else
+          puts "Invalid Review Title. Please Enter Again:"
+        end
+    end
+
+
+
     puts "Please enter your new Review paragraph:"
     review = gets.chomp
     post.update(post: review)
     puts "Congratulations, you have edited your post!"
     input = nil
     while input == nil
-      puts "Press any key and enter to return to the main menu."
+      puts "Press enter to return to the main menu."
       input = gets
     end
     display_menu
@@ -135,6 +191,8 @@ class CommandLineInterface
 
   def delete_post
     puts `clear`
+    puts "Review Titles:"
+    Post.all.map {|p| puts p.title}
     puts "Please enter the title of the Review you want to delete:"
     review_title = gets.chomp
     post = Post.find_by(title: review_title)
@@ -142,7 +200,7 @@ class CommandLineInterface
     puts "Congratulations, you have deleted this post from time and space."
     input = nil
     while input == nil
-      puts "Press any key to return to main menu."
+      puts "Press enter to return to main menu."
       input = gets
     end
     display_menu
