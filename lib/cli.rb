@@ -108,17 +108,20 @@ class CommandLineInterface
     author_name = gets.chomp
 
     repeat = false
-    Author.select(:name).map(&:name).each do |author|
-      if author_name == author
-        repeat = true
-      end
-    end
 
-    if repeat == true
-      author = Author.find_by(name: author_name)
-    else
-      author = Author.create(name: author_name)
-    end
+
+    author = Author.find_or_create_by(name: author_name)
+    # Author.select(:name).map(&:name).each do |author|
+    #   if author_name == author
+    #     repeat = true
+    #   end
+    # end
+
+    # if repeat == true
+    #   author = Author.find_by(name: author_name)
+    # else
+    #   author = Author.create(name: author_name)
+    # end
     puts "Please enter the name of the band you want to review:"
     band_name = gets.chomp
 
